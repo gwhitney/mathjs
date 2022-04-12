@@ -87,20 +87,22 @@ const q = math.evaluate('1 C')                 // 1 C
 const F = math.multiply(q, math.cross(v, B))   // [0 N, 0 N, -1 N]
 ```
 
-All arithmetic operators act on the value of the unit as it is represented in SI units.
-This may lead to surprising behavior when working with temperature scales like `celsius` (or `degC`) and `fahrenheit` (or `degF`).
+All arithmetic operators act on the value of the unit as it is represented in SI units. Because of this principle, many operation on "offset" temperature scales like `celsius` (or `degC`) and `fahrenheit` (or `degF`) are disallowed (as otherwise they would lead to nonsense results).
 In general you should avoid calculations using `celsius` and `fahrenheit`. Rather, use `kelvin` (or `K`) and `rankine` (or `degR`) instead.
-This example highlights some problems when using `celsius` and `fahrenheit` in calculations:
+These examples highlights some problems when using `celsius` and `fahrenheit` in calculations:
 
 ```js
 const T_14F = math.unit('14 degF')            // Unit 14 degF (263.15 K)
-const T_28F = math.multiply(T1, 2)            // Unit 487.67 degF (526.3 K), not 28 degF
+const T_28F = math.multiply(T1, 2)            // Throws error, as
+// otherwise it would produce: Unit 487.67 degF (526.3 K), not 28 degF
 
 const Tnegative = math.unit(-13, 'degF')      // Unit -13 degF (248.15 K)
 const Tpositive = math.abs(T1)                // Unit -13 degF (248.15 K), not 13 degF
 
-const Trate1 = math.evaluate('5 (degC/hour)') // Unit 5 degC/hour
-const Trate2 = math.evaluate('(5 degC)/hour') // Unit 278.15 degC/hour
+const Trate1 = math.evaluate('5 (degC/hour)') // Throws error: no derived units
+// based on degC allowed
+const Trate2 = math.evaluate('(5 degC)/hour') // Throws error: no derived units
+// based on degC allow, because otherwise it would produce: Unit 278.15 degC/hour
 ```
 
 The expression parser supports units too. This is described in the section about
@@ -127,7 +129,7 @@ The second argument to `createUnit` can also be a configuration object consistin
 
 * **definition** A `string` or `Unit` which defines the user-defined unit in terms of existing built-in or user-defined units. If omitted, a new base unit is created.
 * **prefixes** A `string` indicating which prefixes math.js should use with the new unit. Possible values are `'none'`, `'short'`, `'long'`, `'binary_short'`, or `'binary_long'`. Default is `'none'`.
-* **offset** A value applied when converting to the unit. This is very helpful for temperature scales that do not share a zero with the absolute temperature scale. For example, if we were defining fahrenheit for the first time, we would use: `math.createUnit('fahrenheit', {definition: '0.555556 kelvin', offset: 459.67})`
+* **offset** A value applied when converting to the unit. This is very helpful for temperature scales that do not share a zero with the absolute temperature scale. For example, if we were defining fahrenheit for the first time, we would use: `math.createUnit('fahrenheit', {definition: '0.555556 kelvin', offset: 459.67})`. Note that using a non-zero offset marks the unit as "absolute only": it will become illegal to add quantities of this unit; subtracting quantites of this unit will automatically convert to a unit with the same dimensions that has 0 offset; and multiplying or dividing this unit by any other unit or by a number will be illegal.
 * **aliases** An array of strings to alias the new unit. Example: `math.createUnit('knot', {definition: '0.514444 m/s', aliases: ['knots', 'kt', 'kts']})`
 * **baseName** A `string` that specifies the name of the new dimension in case one needs to be created. Every unit in math.js has a dimension: length, time, velocity, etc. If the unit's `definition` doesn't match any existing dimension, or it is a new base unit, then `createUnit` will create a new dimension with the name `baseName` and assign it to the new unit. The default is to append `'_STUFF'` to the unit's name. If the unit already matches an existing dimension, this option has no effect.
 
@@ -269,7 +271,7 @@ Time                | second (s, secs, seconds), minute (mins, minutes), hour (h
 Frequency           | hertz (Hz)
 Mass                | gram(g), tonne, ton, grain (gr), dram (dr), ounce (oz), poundmass (lbm, lb, lbs), hundredweight (cwt), stick, stone
 Electric current    | ampere (A)
-Temperature         | kelvin (K), celsius (degC), fahrenheit (degF), rankine (degR)
+Temperature         | kelvin (K), celsius (degC) [Note: absolute temperatures only, not temperature differences], fahrenheit (degF) [Same note as celsius], rankine (degR)
 Amount of substance | mole (mol)
 Luminous intensity  | candela (cd)
 Force               | newton (N), dyne (dyn), poundforce (lbf), kip

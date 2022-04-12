@@ -7,7 +7,7 @@ export const unitDocs = {
     'unit(string)'
   ],
   description:
-      'Create a unit.',
+      'Create a unit. Please check the full docs for limitations of degC and degF.',
   examples: [
     '5.5 mm',
     '3 inch',

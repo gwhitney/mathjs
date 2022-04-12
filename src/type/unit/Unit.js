@@ -3118,7 +3118,11 @@ export const createUnitClass = /* #__PURE__ */ factory(name, dependencies, ({
    *   - aliases {Array} Array of strings. Example: ['knots', 'kt', 'kts']
    *   - offset {Numeric} An offset to apply when converting from the unit. For
    *     example, the offset for celsius is 273.15 and the offset for farhenheit
-   *     is 459.67. Default is 0.
+   *     is 459.67. Default is 0. Note: units with offsets are also marked
+   *     as 'absolute only': they may not be added, subtraction results in
+   *     automatic conversion to a unit of the same dimension that has 0 offset,
+   *     and they may not be multiplied by another unit or a number, not
+   *     participate in any derived unit.
    *   - baseName {string} If the unit's dimension does not match that of any other
    *     base unit, the name of the newly create base unit. Otherwise, this property
    *     has no effect.

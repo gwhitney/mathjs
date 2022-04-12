@@ -11,6 +11,14 @@ export const createUnitFunction = /* #__PURE__ */ factory(name, dependencies, ({
    * will create and return a new math.Unit object.
    * When a matrix is provided, all elements will be converted to units.
    *
+   * Note that the units `degC` and `degF` that have "offsets" from the zero
+   * point of their dimension, may only be used to record absolute values of
+   * their own dimension. In other words, they may not be added, subtraction
+   * automatically converts to `K` or `R`, respectively, and they may
+   * not be multiplied by another unit or a number, nor participate in any
+   * derived unit. Thus, use J/K rather than J/degC for heat capacity, for
+   * example.
+   *
    * Syntax:
    *
    *     math.unit(unit : string)
